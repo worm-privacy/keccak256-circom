@@ -29,3 +29,15 @@ include "../node_modules/keccak256-circom/circuits/keccak.circom";
 // for a input & output of 32 bytes:
 component main = Keccak(32*8, 32*8);
 ```
+
+## Development
+
+Dependencies are managed by `shell.nix`.
+
+```sh
+$ git clone https://github.com/worm-privacy/keccak256-circom.git
+$ cd keccak256-circom
+$ nix-shell
+$ npm test
+```
+
