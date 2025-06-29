@@ -1,4 +1,4 @@
-# keccak256-circom [![Test](https://github.com/vocdoni/keccak256-circom/workflows/Test/badge.svg)](https://github.com/vocdoni/keccak256-circom/actions?query=workflow%3ATest)
+# keccak256-circom [![Test](https://github.com/worm-privacy/keccak256-circom/workflows/Test/badge.svg)](https://github.com/worm-privacy/keccak256-circom/actions?query=workflow%3ATest)
 
 Keccak256 hash function (ethereum version) implemented in [circom](https://github.com/iden3/circom). Spec: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
 
@@ -16,7 +16,7 @@ It needs around `150848` (`151k`) constraints.
 - import the lib in the `package.json`:
 ```
 "dependencies": {
-	"keccak256-circom": "git+https://github.com/vocdoni/keccak256-circom"
+	"keccak256-circom": "git+https://github.com/worm-privacy/keccak256-circom"
 }
 ```
 
