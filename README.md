@@ -35,7 +35,7 @@ component main = Keccak(32*8, 32*8);
 Dependencies are managed by `shell.nix`.
 
 ```sh
-$ git clone https://github.com/worm-privacy/keccak256-circom.git
+$ git clone https://github.com/vocdoni/keccak256-circom.git
 $ cd keccak256-circom
 $ nix-shell
 $ npm test
