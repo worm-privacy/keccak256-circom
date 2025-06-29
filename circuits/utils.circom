@@ -1,118 +1,59 @@
-// Keccak256 hash function (ethereum version).
-// For LICENSE check https://github.com/vocdoni/keccak256-circom/blob/master/LICENSE
+pragma circom 2.2.2;
 
-pragma circom 2.0.0;
+include "./assert.circom";
 
-include "../node_modules/circomlib/circuits/gates.circom";
-include "../node_modules/circomlib/circuits/sha256/xor3.circom";
-include "../node_modules/circomlib/circuits/sha256/shift.circom"; // contains ShiftRight
+// Computes the quotient and remainder for the division of a by b:
+// a === out * b + rem
+//
+// Example:
+//   a:   10
+//   b:   3
+//   out: 3
+//   rem: 1
+//
+// Reviewers:
+//   Keyvan: OK
+//
+template Divide(N) {
+    signal input a;
+    signal input b;
+    signal output out;
+    signal output rem;
 
-template Xor5(n) {
-    signal input a[n];
-    signal input b[n];
-    signal input c[n];
-    signal input d[n];
-    signal input e[n];
-    signal output out[n];
-    var i;
-    
-    component xor3 = Xor3(n);
-    for (i=0; i<n; i++) {
-        xor3.a[i] <== a[i];
-        xor3.b[i] <== b[i];
-        xor3.c[i] <== c[i];
-    }
-    component xor4 = XorArray(n);
-    for (i=0; i<n; i++) {
-        xor4.a[i] <== xor3.out[i];
-        xor4.b[i] <== d[i];
-    }
-    component xor5 = XorArray(n);
-    for (i=0; i<n; i++) {
-        xor5.a[i] <== xor4.out[i];
-        xor5.b[i] <== e[i];
-    }
-    for (i=0; i<n; i++) {
-        out[i] <== xor5.out[i];
-    }
+    out <-- a \ b;
+    rem <-- a % b;
+
+    // Check if `rem` and `b` are at most N-bits long and `rem < b`
+    AssertLessThan(N)(rem, b);
+
+    // Check if `out` and `a` are at most N-bits long and `out < a`
+    AssertLessEqThan(N)(out, a);
+
+    out * b + rem === a;
 }
 
-template XorArray(n) {
-    signal input a[n];
-    signal input b[n];
-    signal output out[n];
-    var i;
+// Converts an array of binary bits into a number in big-endian format.
+//
+// Reviewers:
+//   Keyvan: OK
+//
+template Bits2NumBigEndian(numBytes) {
+    signal input in[numBytes * 8];
+    signal output out;
 
-    component aux[n];
-    for (i=0; i<n; i++) {
-        aux[i] = XOR();
-        aux[i].a <== a[i];
-        aux[i].b <== b[i];
-    }
-    for (i=0; i<n; i++) {
-        out[i] <== aux[i].out;
-    }
-}
+    assert(numBytes <= 31); // Avoid overflows
 
-template XorArraySingle(n) {
-    signal input a[n];
-    signal output out[n];
-    var i;
+    var result = 0;
+    var step = 1;
 
-    component aux[n];
-    for (i=0; i<n; i++) {
-        aux[i] = XOR();
-        aux[i].a <== a[i];
-        aux[i].b <== 1;
-    }
-    for (i=0; i<n; i++) {
-        out[i] <== aux[i].out;
-    }
-}
-
-template OrArray(n) {
-    signal input a[n];
-    signal input b[n];
-    signal output out[n];
-    var i;
-
-    component aux[n];
-    for (i=0; i<n; i++) {
-        aux[i] = OR();
-        aux[i].a <== a[i];
-        aux[i].b <== b[i];
-    }
-    for (i=0; i<n; i++) {
-        out[i] <== aux[i].out;
-    }
-}
-
-template AndArray(n) {
-    signal input a[n];
-    signal input b[n];
-    signal output out[n];
-    var i;
-
-    component aux[n];
-    for (i=0; i<n; i++) {
-        aux[i] = AND();
-        aux[i].a <== a[i];
-        aux[i].b <== b[i];
-    }
-    for (i=0; i<n; i++) {
-        out[i] <== aux[i].out;
-    }
-}
-
-template ShL(n, r) {
-    signal input in[n];
-    signal output out[n];
-
-    for (var i=0; i<n; i++) {
-        if (i < r) {
-            out[i] <== 0;
-        } else {
-            out[i] <== in[ i-r ];
+    // Big-endian (Byte-level)
+    for (var i = numBytes - 1; i >= 0; i--) {
+        // Little-endian (Bit-level)
+        for (var j = 0; j < 8; j++) {
+            result += in[i * 8 + j] * step;
+            step *= 2;
         }
     }
+
+    out <== result;
 }
