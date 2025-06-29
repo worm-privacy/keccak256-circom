@@ -38,6 +38,7 @@ Dependencies are managed by `shell.nix`.
 $ git clone https://github.com/vocdoni/keccak256-circom.git
 $ cd keccak256-circom
 $ nix-shell
+$ npm install
 $ npm test
 ```
 
